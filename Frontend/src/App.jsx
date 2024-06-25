@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Loader from './components/Loader';
+import Header from './components/Header';
 
 const Home = lazy(() => import('./pages/Home'));
 const SignUp = lazy(() => import('./pages/SignUp'));
@@ -14,6 +15,7 @@ const App = () => {
     <div>
       <BrowserRouter>
         <Suspense fallback={<Loader/>}>
+          <Header/>
           <Routes>
             <Route path="/" element={<Home/>} />
             <Route path="/about" element={<About/>} />
