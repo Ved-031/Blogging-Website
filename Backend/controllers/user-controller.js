@@ -2,9 +2,10 @@ import UserModel from "../models/userModel.js";6
 import validator from 'validator';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
+import errorHandler from "../utils/error.js";
 
 // Creating a user
-const createUser = async (req, res) => {
+const createUser = async (req, res, next) => {
 
     let { username, email, password } = req.body;
 
@@ -13,23 +14,23 @@ const createUser = async (req, res) => {
         // Checking if the user already exsits
         const exists = await UserModel.findOne({email: email});
         if(exists){
-            return res.status(400).json({success: false, message: "User already registered"});
+            next(errorHandler(400, "User already registered"));
         }
 
         // Checking the empty fields
         if(!username || !email || !password || username === "" || email === "" || password === ""){
-            return res.status(400).json({success: false, message: "All fields all required"});
+            next(errorHandler(400, "All fields are required!"));
         }
 
         // Validating email
         const result = validator.isEmail(email);
         if(!result){
-            return res.status(400).json({success: false, message: "Please enter valid email"});
+            next(errorHandler(400, "Please enter valid email"));
         }
 
         // Validating password
         if(password.length <= 7){
-            return res.status(400).json({success: false, message: "Password should be at least of 8 characters"});
+            next(errorHandler(400, "Password should be atleast of 8 characters"));
         }
 
         // Hashing the password
@@ -42,11 +43,10 @@ const createUser = async (req, res) => {
             password: hashedPassword,
         })
         await user.save();
-        res.status(200).json({success: true, message: "SignUp successfull"});
+        next(errorHandler(200, "SignUp successfull"));
 
     } catch (error) {
-        console.log(error);
-        res.status(500).json({success: false, message: "Error"});
+        next(error);
     }
 }
 
