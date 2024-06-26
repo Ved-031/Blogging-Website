@@ -1,6 +1,7 @@
 import express from 'express';
 import connectDB from './config/db.js';
 import cors from 'cors';
+import userRouter from './routes/userRouter.js';
 import 'dotenv/config';
 
 // App config
@@ -15,9 +16,7 @@ app.use(cors());
 connectDB();
 
 // API endpoints
-app.get('/', (req, res)=>{
-    res.send("Hello World");
-})
+app.use('/api/user', userRouter);
 
 // Server Running at 3000 port
 app.listen(PORT, ()=>{
