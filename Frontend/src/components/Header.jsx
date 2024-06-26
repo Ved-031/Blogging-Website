@@ -9,7 +9,7 @@ const Header = () => {
 
   return (
     <Navbar className='border-b'>
-        <Link to="/" className='self-center whitespace-nowrap text-sm sm:text-xl font-semibold dark:text-white'>
+        <Link to="/" className='self-center whitespace-nowrap text-lg sm:text-xl font-semibold dark:text-white'>
             <span className='px-2 py-1 text-purple-500 dark:text-white'>Blog</span>Web
         </Link>
         <form>
