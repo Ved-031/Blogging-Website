@@ -72,8 +72,8 @@ const loginUser = async (req, res, next) => {
 
         // Comparing password
         const isMatch = await bcryptjs.compareSync(password, user.password);
-        if(!isMatch){
-            return next(errorHandler(400, "Invalid credentials"));
+        if(isMatch === false){
+            return next(errorHandler(404, "Invalid password"));
         }
 
         // Creating a token and setting up a cookie
@@ -84,7 +84,7 @@ const loginUser = async (req, res, next) => {
         .cookie('token', token, {
             httpOnly: true,
         })
-        .json({rest});
+        .json(rest);
 
     } catch (error) {
         next(error);
