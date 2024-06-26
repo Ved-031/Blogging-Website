@@ -1,6 +1,6 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
-import Loader from './components/Loader';
+import { Spinner } from 'flowbite-react';
 import Header from './components/Header';
 
 const Home = lazy(() => import('./pages/Home'));
@@ -14,7 +14,7 @@ const App = () => {
   return (
     <div>
       <BrowserRouter>
-        <Suspense fallback={<Loader/>}>
+        <Suspense fallback={<Spinner/>}>
           <Header/>
           <Routes>
             <Route path="/" element={<Home/>} />

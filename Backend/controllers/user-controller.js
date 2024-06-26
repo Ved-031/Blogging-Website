@@ -43,7 +43,7 @@ const createUser = async (req, res, next) => {
             password: hashedPassword,
         })
         await user.save();
-        next(errorHandler(200, "SignUp successfull"));
+        res.status(200).json({success: true, message: "SignUp successfull"});
 
     } catch (error) {
         next(error);

@@ -1,11 +1,48 @@
 // import React from 'react'
-import { Link } from 'react-router-dom'
-import { Button, Label, TextInput } from 'flowbite-react'
+import { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import { Alert, Button, Label, Spinner, TextInput } from 'flowbite-react'
 
 const SignUp = () => {
+
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({});
+  const [errorMessage, setErrorMessage] = useState(null);
+  const [loading, setLoading] = useState(false);
+
+  const onChangeHandler = (e) => {
+    setFormData({...formData, [e.target.id]: e.target.value});
+  }
+
+  const submitHandler = async (e) =>{
+    e.preventDefault();
+    if(!formData.username || !formData.email || !formData.password){
+      setErrorMessage("All fields are required");
+    }
+    try {
+      setLoading(true);
+      setErrorMessage(null);
+      await axios.post('/api/user/create', formData)
+      .then((response)=>{
+        if(response.data.success === false){
+          return setErrorMessage(response.data.message);
+        }
+        setLoading(false);
+        setFormData({});
+        navigate('/signin');
+      })
+    } catch (error) {
+      setErrorMessage(error.message);
+      setLoading(false);
+    }
+  }
+
   return (
     <div className="min-h-screen mt-20">
       <div className='flex p-5 max-w-3xl mx-auto flex-col md:flex-row md:items-center gap-5 md:gap-10'>
+
         {/* left */}
         <div className="flex-1">
         <Link to="/" className='text-3xl font-bold dark:text-white'>
@@ -15,17 +52,18 @@ const SignUp = () => {
           This is a Blogging website. You can signup with your email and password or with Google.
         </p>
         </div>
+
         {/* right */}
         <div className="flex-1">
           <div>
-            <form className='flex flex-col gap-4'>
+            <form onSubmit={submitHandler} className='flex flex-col gap-4'>
               <div>
                 <Label value='Your username'/>
                 <TextInput 
                   type='text' 
                   placeholder='Username' 
                   id='username' 
-                  name='username'
+                  onChange={onChangeHandler}
                 />
               </div>
               <div>
@@ -34,7 +72,7 @@ const SignUp = () => {
                   type='email' 
                   placeholder='Email' 
                   id='email' 
-                  name='email'
+                  onChange={onChangeHandler}
                 />
               </div>
               <div>
@@ -43,10 +81,19 @@ const SignUp = () => {
                   type='password' 
                   placeholder='Password' 
                   id='password' 
-                  name='password'
+                  onChange={onChangeHandler}
                 />
               </div>
-              <Button gradientDuoTone='purpleToPink' type='submit' className='transition'>Sign Up</Button>
+              <Button gradientDuoTone='purpleToPink' type='submit' className='transition' disabled={loading}>
+                {
+                  loading ? (
+                    <div className='flex items-center gap-2'>
+                      <Spinner size='sm'/>
+                      <span>Loading...</span>
+                    </div>
+                ) : "SignUp"
+                }
+              </Button>
             </form>
             <div className='flex gap-2 text-sm mt-5'>
               <span>Have an account?</span>
@@ -54,8 +101,16 @@ const SignUp = () => {
                 Sign In
               </Link>
             </div>
+            {
+              errorMessage && (
+                <Alert className='mt-5' color='failure'>
+                  {errorMessage}
+                </Alert>
+              )
+            }
           </div>
         </div>
+
       </div>
     </div>
   )
