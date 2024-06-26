@@ -2,6 +2,7 @@ import express from 'express';
 import connectDB from './config/db.js';
 import cors from 'cors';
 import userRouter from './routes/userRouter.js';
+import cookieParser from 'cookie-parser';
 import 'dotenv/config';
 
 // App config
@@ -11,6 +12,7 @@ const PORT = 3000;
 // Middlewares
 app.use(express.json());
 app.use(cors());
+app.use(cookieParser());
 
 // Connect DB
 connectDB();

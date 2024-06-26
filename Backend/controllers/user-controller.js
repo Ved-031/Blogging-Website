@@ -50,17 +50,45 @@ const createUser = async (req, res, next) => {
     }
 }
 
-
 // Login in a user
-const loginUser = async (req, res) => {}
+const loginUser = async (req, res, next) => {
 
+    let { email, password } = req.body;
 
-// Updating a user
-const updateUser = async (req, res) => {}
+    try {
 
+        // Checking the empty fields 
+        if(!email || !password || email === '' || password === ''){
+            return next(errorHandler(400, "All fields are required!"));
+        }
 
-// Deleting a user
-const deleteUser = async (req, res) => {}
+        // Finding user from db
+        const user = await UserModel.findOne({email});
 
+        // Checking if user exists
+        if(!user){
+            return next(errorHandler(404, "User not found"));
+        }
 
-export { createUser, loginUser, updateUser, deleteUser }
+        // Comparing password
+        const isMatch = await bcryptjs.compareSync(password, user.password);
+        if(!isMatch){
+            return next(errorHandler(400, "Invalid credentials"));
+        }
+
+        // Creating a token and setting up a cookie
+        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET_KEY);
+        const { password: pass, ...rest } = user._doc;
+        res
+        .status(200)
+        .cookie('token', token, {
+            httpOnly: true,
+        })
+        .json({rest});
+
+    } catch (error) {
+        next(error);
+    }
+}
+
+export { createUser, loginUser }
