@@ -91,4 +91,53 @@ const loginUser = async (req, res, next) => {
     }
 }
 
-export { createUser, loginUser }
+// Signin a user with Google
+const googleUser = async (req, res, next) => {
+
+    let { name, email, googlePhotoURL } = req.body;
+
+    try {
+        
+        // Checking if user exsits
+        const user = await UserModel.findOne({email});
+        if(user){
+
+            const token = jwt.sign({id: user._id}, process.env.JWT_SECRET_KEY);
+            const { password, ...rest} = user._doc;
+            res
+            .status(200)
+            .cookie('token', token, {
+                httpOnly: true,
+            })
+            .json(rest);
+
+        }else{
+
+            // Generating random password
+            const generatedPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-8);
+
+            // Hashing generated password
+            const hashedPassword = await bcryptjs.hashSync(generatedPassword, 10);
+
+            // Creating a new user
+            const newUser = new UserModel({
+                username: name.toLowerCase().split(' ').join('') + Math.random().toString(9).slice(-4),
+                email,
+                password: hashedPassword,
+                profilePictue: googlePhotoURL
+            })
+            await newUser.save();
+
+            // Setting up a token
+            const { password, ...rest } = newUser._doc;
+            const token = jwt.sign({id: newUser._id}, process.env.JWT_SECRET_KEY);
+            res.status(200).cookie('token', token, {httpOnly: true}).json(rest);
+        }
+
+    } catch (error) {
+        next(error);
+    }
+
+}
+
+export { createUser, loginUser, googleUser }
