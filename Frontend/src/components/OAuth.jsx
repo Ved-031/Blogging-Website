@@ -21,12 +21,13 @@ const OAuth = () => {
             dispatch(signInStart());
 
             const resultFromGoogle = await signInWithPopup(auth, provider);
+            console.log(resultFromGoogle);
+            const user = resultFromGoogle.user;
             const response = await axios.post('/api/user/google', {
-                name: resultFromGoogle.user.displayName,
-                email: resultFromGoogle.user.email,
-                googlePhotoURL: resultFromGoogle.user.photoURL
+                name: user.displayName,
+                email: user.email,
+                googlePhotoURL: user.photoURL
             })
-            
             if(response.statusText === 'OK'){
                 dispatch(signInSuccess(response.data));
                 navigate('/');
